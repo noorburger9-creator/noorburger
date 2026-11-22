@@ -385,4 +385,75 @@ let tp=0,tt=0;document.querySelector("[data-t=foot]").addEventListener("click",(
 if(location.hash=="#admin")openAdmin();window.addEventListener("hashchange",()=>{if(location.hash=="#admin")openAdmin()});
 const sp0=$("sp");sp0.onclick=()=>sp0.remove();setTimeout(()=>{sp0&&sp0.remove()},1600);
 render();
-</script></body></html>
+</script><script>
+/* ====== FIREBASE SOZLAMASI: o'z firebaseConfig qiymatlaringizni shu yerga qo'ying ====== */
+window.FIREBASE_CONFIG={
+  apiKey:"AIzaSyCsnpcTDqZ1hQaUJUXZFzK5JCGPT6rMp-0",
+  authDomain:"noorburger-8b7d7.firebaseapp.com",
+  projectId:"noorburger-8b7d7",
+  storageBucket:"noorburger-8b7d7.firebasestorage.app",
+  messagingSenderId:"904520176592",
+  appId:"1:904520176592:web:9c8d20817d722bfd9d9fd5"
+};
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {getAuth,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+const c=window.FIREBASE_CONFIG;
+if(c&&c.apiKey&&c.apiKey.indexOf("PASTE")<0){
+  const app=initializeApp(c),db=getFirestore(app),au=getAuth(app);
+  window.FB={
+    user:()=>au.currentUser,
+    signIn:(e,p)=>signInWithEmailAndPassword(au,e,p),
+    signOut:()=>signOut(au),
+    async getMenu(){const r=await getDoc(doc(db,"menu","main"));return r.exists()?r.data():null},
+    setMenu:j=>setDoc(doc(db,"menu","main"),{data:j,t:Date.now()}),
+    async getImg(h){const r=await getDoc(doc(db,"img",h));return r.exists()?r.data().d:null},
+    setImg:(h,d)=>setDoc(doc(db,"img",h),{d:d})
+  };
+  window.dispatchEvent(new Event("fbready"));
+}
+</script>
+<script>
+(function(){
+const ih=v=>h53(v)+v.length.toString(36),IMGT={};
+PUB.items.forEach(x=>{if(typeof x.i==="string"&&x.i.indexOf("data:")==0)IMGT[ih(x.i)]=x.i});
+let REMOTE=null,FBOK=false;
+const lists=d=>[d.items||[],d.promos||[]];
+function compact(d){const o=cl(d),up={};delete o.pw;delete o.lg;
+  lists(o).forEach(a=>a.forEach(x=>{if(typeof x.i==="string"&&x.i.indexOf("data:")==0){const h=ih(x.i);if(!IMGT[h])up[h]=x.i;x.i="@"+h}}));
+  return {o,up}}
+async function expand(d){const need={};
+  lists(d).forEach(a=>a.forEach(x=>{if(typeof x.i==="string"&&x.i[0]==="@"){const h=x.i.slice(1);if(IMGT[h])x.i=IMGT[h];else(need[h]=need[h]||[]).push(x)}}));
+  await Promise.all(Object.keys(need).map(async h=>{let v=null;try{v=await FB.getImg(h)}catch(e){}
+    if(v)IMGT[h]=v;need[h].forEach(x=>x.i=v||PH)}));return d}
+async function loadRemote(){
+  FBOK=true;
+  try{const r=await FB.getMenu();if(!r)return;
+    const d=JSON.parse(r.data);d.pw=PUB.pw;d.lg=PUB.lg;await expand(d);REMOTE=norm(d);
+    if(!authed){DATA=REMOTE;render()}
+  }catch(e){console.warn("Firebase o‘qilmadi",e)}}
+const OLD_LOGIN=login;
+login=async function(){
+  if(!FBOK)return OLD_LOGIN();
+  const u=($("lu").value||"").trim(),p=$("lp").value;
+  try{await FB.signIn(u,p)}catch(e){$("le").textContent="Login yoki parol noto‘g‘ri";return}
+  SAVED=norm(cl(REMOTE||PUB));DRAFT=cl(SAVED);DIRTY=false;authed=true;drawAd()};
+const OLD_SAVE=save;
+save=async function(){
+  if(!FBOK||!FB.user())return OLD_SAVE();
+  const t=$("st"),sv=$("sv");if(sv)sv.disabled=true;if(t)t.textContent="Saqlanmoqda…";
+  try{const {o,up}=compact(DRAFT);
+    for(const h in up){await FB.setImg(h,up[h]);IMGT[h]=up[h]}
+    await FB.setMenu(JSON.stringify(o));
+    SAVED=cl(DRAFT);REMOTE=cl(SAVED);DIRTY=false;drawAd();
+    const t2=$("st");if(t2)t2.textContent="Saqlandi ✓ Menyu hamma uchun yangilandi."
+  }catch(e){DIRTY=true;drawAd();const t2=$("st");if(t2)t2.textContent="Saqlab bo‘lmadi: "+(e&&e.code||e&&e.message||e)}};
+const OLD_TABPW=tabPw;
+tabPw=function(){return FBOK?'<div class="card2"><p>Admin kirishi Firebase orqali ishlaydi. Login (email) va parolni Firebase Console → Authentication → Users bo‘limida o‘zgartiring.</p></div>':OLD_TABPW()};
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest('[data-a="logout"]');if(b&&window.FB)FB.signOut()},true);
+if(window.FB)loadRemote();else window.addEventListener("fbready",loadRemote,{once:true});
+})();
+</script>
+</body></html>
